@@ -24,6 +24,15 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+#include "stm32l475e_iot01.h"
+#include "stm32l475e_iot01_tsensor.h"
+#include "stm32l475e_iot01_accelero.h"
+#include "stm32l475e_iot01_gyro.h"
+#include "stm32l475e_iot01_hsensor.h"
+#include "stm32l475e_iot01_magneto.h"
+#include "stm32l475e_iot01_psensor.h"
+#include <math.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,6 +63,15 @@ UART_HandleTypeDef huart1;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
+
+float temp_value = 0; // Measured temperature value
+float humidity = 0;   // Measured humidity value
+float pressure = 0;   // Measured pressure value
+
+char str_tmp[100] = ""; // Formatted message to display the temperature value
+uint8_t msg1[] = "****** Sensor values measurement ******\n\n\r";
+uint8_t msg2[] = "=====> Initialize all the sensors \r\n";
+uint8_t msg3[] = "=====> All the sensors are initialized \r\n ";
 
 /* USER CODE END PV */
 
@@ -112,6 +130,15 @@ int main(void)
   MX_USB_OTG_FS_PCD_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_UART_Transmit(&huart1,msg1,sizeof(msg1),1000);
+  HAL_UART_Transmit(&huart1,msg2,sizeof(msg2),1000);
+  BSP_TSENSOR_Init();
+  BSP_ACCELERO_Init();
+  BSP_GYRO_Init();
+  BSP_PSENSOR_Init();
+  BSP_MAGNETO_Init();
+  HAL_UART_Transmit(&huart1,msg3,sizeof(msg3),1000);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -121,6 +148,25 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+	   temp_value = BSP_TSENSOR_ReadTemp();
+	   int tmpInt1 = temp_value;
+	   float tmpFrac = temp_value - tmpInt1;
+	   int tmpInt2 = trunc(tmpFrac * 100);
+
+	   humidity = BSP_HSENSOR_ReadHumidity();
+	   int HumidityInt1 = humidity;
+	   float HumFrac = humidity - HumidityInt1;
+	   int HumidityInt2 = trunc(HumFrac * 100);
+
+	   pressure = BSP_PSENSOR_ReadPressure();
+	   int PreInt1 = pressure;
+	   float PreFrac = pressure - PreInt1;
+	   int PreInt2 = trunc(PreFrac * 100);
+
+	   snprintf(str_tmp,100," TEMPERATURE = %d.%02d\n\r", tmpInt1, tmpInt2);
+	   HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),1000);
+
   }
   /* USER CODE END 3 */
 }
