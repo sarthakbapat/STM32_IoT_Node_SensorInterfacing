@@ -68,7 +68,7 @@ float temp_value = 0; // Measured temperature value
 float humidity = 0;   // Measured humidity value
 float pressure = 0;   // Measured pressure value
 
-char str_tmp[100] = ""; // Formatted message to display the temperature value
+char str_tmp[500] = ""; // Formatted message to display the temperature value
 uint8_t msg1[] = "****** Sensor values measurement ******\n\n\r";
 uint8_t msg2[] = "=====> Initialize all the sensors \r\n";
 uint8_t msg3[] = "=====> All the sensors are initialized \r\n ";
@@ -164,8 +164,10 @@ int main(void)
 	   float PreFrac = pressure - PreInt1;
 	   int PreInt2 = trunc(PreFrac * 100);
 
-	   snprintf(str_tmp,100," TEMPERATURE = %d.%02d\n\r", tmpInt1, tmpInt2);
+	   snprintf(str_tmp,500," TEMPERATURE = %d.%02d  HUMIDITY = %d.%02d  PRESSURE = %d.%02d \n\r", tmpInt1, tmpInt2, HumidityInt1, HumidityInt2, PreInt1, PreInt2);
 	   HAL_UART_Transmit(&huart1,( uint8_t * )str_tmp,sizeof(str_tmp),1000);
+
+	   HAL_Delay(3000);
 
   }
   /* USER CODE END 3 */
